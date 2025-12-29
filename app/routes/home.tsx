@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Github, ArrowRight, Lock, Loader2, Globe } from "lucide-react";
+import { Github, Lock, Loader2 } from "lucide-react";
 import { AboutModal } from "../components/AboutModal";
 
 export function meta() {
