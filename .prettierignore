@@ -1,0 +1,8 @@
+node_modules
+build
+dist
+.cache
+*.tsbuildinfo
+wrangler.jsonc
+pnpm-lock.yaml
+
