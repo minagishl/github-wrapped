@@ -95,7 +95,7 @@ export default function Home() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-1.5 rounded-md bg-github-success-emphasis text-white font-medium text-sm hover:bg-github-success-fg disabled:opacity-70 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 border border-github-border-muted shadow-sm"
+              className="w-full py-1.5 rounded-md bg-github-success-emphasis text-white font-medium text-sm hover:bg-github-success-fg disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer transition-colors flex items-center justify-center gap-2 border border-github-border-muted shadow-sm"
             >
               {isLoading ? (
                 <>
@@ -117,7 +117,7 @@ export default function Home() {
           <p className="text-xs text-github-fg-muted flex items-center justify-center gap-2">
             <button
               onClick={() => setIsAboutOpen(true)}
-              className="hover:text-github-accent-fg hover:underline"
+              className="hover:text-github-accent-fg hover:underline cursor-pointer"
             >
               About
             </button>
