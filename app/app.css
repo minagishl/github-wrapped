@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* GitHub Primer Dark Mode Colors */
+  --color-github-canvas-default: #0d1117;
+  --color-github-canvas-subtle: #161b22;
+  --color-github-canvas-inset: #010409;
+  --color-github-border-default: #30363d;
+  --color-github-border-muted: #21262d;
+  --color-github-fg-default: #c9d1d9;
+  --color-github-fg-muted: #8b949e;
+  --color-github-accent-fg: #58a6ff;
+  --color-github-accent-emphasis: #1f6feb;
+  --color-github-success-fg: #3fb950;
+  --color-github-success-emphasis: #238636;
+  --color-github-attention-fg: #d29922;
+  --color-github-danger-fg: #f85149;
+}
+
+html,
+body {
+  @apply bg-github-canvas-default text-github-fg-default;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
+}
