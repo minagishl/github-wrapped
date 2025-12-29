@@ -67,15 +67,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   return (
     <main className="min-h-screen bg-github-canvas-default text-github-fg-default flex flex-col items-center justify-center p-4 text-center font-sans">
-
-      
       <h1 className="text-2xl font-bold text-github-fg-default mb-2">
         {message}
       </h1>
-      <p className="text-github-fg-muted mb-8 max-w-md">
-        {details}
-      </p>
-      
+      <p className="text-github-fg-muted mb-8 max-w-md">{details}</p>
+
       {stack && (
         <pre className="w-full max-w-2xl p-4 overflow-x-auto bg-github-canvas-subtle rounded-md text-left mb-8 text-xs text-github-fg-muted border border-github-border-default">
           <code>{stack}</code>

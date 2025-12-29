@@ -26,7 +26,9 @@ export const LanguageStatsSchema = z.record(z.string(), z.number());
 export const WrappedDataSchema = z.object({
   profile: UserProfileSchema,
   repos: z.array(RepoSchema),
-  topLanguages: z.array(z.object({ name: z.string(), count: z.number(), percentage: z.number() })),
+  topLanguages: z.array(
+    z.object({ name: z.string(), count: z.number(), percentage: z.number() })
+  ),
   totalStars: z.number(),
   totalCommits: z.number(), // Estimated
   longestStreak: z.number(),

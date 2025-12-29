@@ -45,26 +45,30 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
               <div className="p-6 space-y-6 text-github-fg-default">
                 <div className="space-y-2">
                   <p className="text-sm leading-relaxed">
-                    GitHub Wrapped visualizes your coding journey over the past year. 
-                    See your top languages, longest streaks, and coding persona in a shareable format.
+                    GitHub Wrapped visualizes your coding journey over the past
+                    year. See your top languages, longest streaks, and coding
+                    persona in a shareable format.
                   </p>
                 </div>
 
                 {/* Unofficial Disclaimer */}
                 <div className="bg-github-canvas-inset border border-github-border-muted rounded-lg p-4">
                   <p className="text-xs text-github-fg-muted">
-                    <span className="font-semibold text-github-fg-default block mb-1">Unofficial Project</span>
-                    This application is developed by Minagishl and is not affiliated with, endorsed, or sponsored by GitHub, Inc.
+                    <span className="font-semibold text-github-fg-default block mb-1">
+                      Unofficial Project
+                    </span>
+                    This application is developed by Minagishl and is not
+                    affiliated with, endorsed, or sponsored by GitHub, Inc.
                   </p>
                 </div>
 
                 {/* PAT Info */}
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold">
-                    Privacy & Security
-                  </h3>
+                  <h3 className="text-sm font-semibold">Privacy & Security</h3>
                   <p className="text-xs text-github-fg-muted leading-relaxed">
-                    We prioritize your privacy. Your Personal Access Token (PAT) is used solely to fetch your data directly from the GitHub API. 
+                    We prioritize your privacy. Your Personal Access Token (PAT)
+                    is used solely to fetch your data directly from the GitHub
+                    API.
                     <span className="text-github-fg-default font-medium block mt-1">
                       Your token is never stored on our servers.
                     </span>

@@ -28,7 +28,9 @@ export default function WrappedPage() {
     return (
       <div className="min-h-screen bg-github-canvas-default text-github-fg-default flex flex-col items-center justify-center space-y-4 font-sans">
         <Loader2 className="w-8 h-8 animate-spin text-github-fg-muted" />
-        <p className="text-github-fg-muted text-sm font-medium">Generating your Wrapped...</p>
+        <p className="text-github-fg-muted text-sm font-medium">
+          Generating your Wrapped...
+        </p>
       </div>
     );
   }
@@ -36,17 +38,15 @@ export default function WrappedPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-github-canvas-default text-github-fg-default flex flex-col items-center justify-center p-4 text-center font-sans">
-
-        
         <h1 className="text-2xl font-bold text-github-fg-default mb-2">
           User not found
         </h1>
         <p className="text-github-fg-muted mb-8 max-w-md">
-          {(error as Error).message.includes("Not Found") 
+          {(error as Error).message.includes("Not Found")
             ? "The username you entered doesn't exist on GitHub. Please check the spelling and try again."
             : (error as Error).message}
         </p>
-        
+
         <a
           href="/"
           className="px-6 py-2 bg-github-canvas-subtle border border-github-border-default text-github-fg-default rounded-md font-medium hover:bg-github-border-muted transition-colors text-sm"

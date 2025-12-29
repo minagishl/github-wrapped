@@ -20,11 +20,11 @@ export default function Home() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!username) return;
-    
+
     setIsLoading(true);
     const params = new URLSearchParams();
     if (token) params.set("token", token);
-    
+
     setTimeout(() => {
       navigate(`/wrapped/${username}?${params.toString()}`);
     }, 800);
@@ -33,7 +33,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-github-canvas-default text-github-fg-default flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
-      
+
       <div className="z-10 w-full max-w-sm space-y-6">
         <div className="text-center space-y-4 mb-8">
           <div className="inline-flex items-center justify-center mb-2">
@@ -50,7 +50,10 @@ export default function Home() {
         <div className="bg-github-canvas-subtle border border-github-border-default rounded-md p-6 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="username" className="block text-sm font-medium text-github-fg-default">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-github-fg-default"
+              >
                 Username
               </label>
               <input
@@ -66,10 +69,15 @@ export default function Home() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label htmlFor="token" className="block text-sm font-medium text-github-fg-default">
+                <label
+                  htmlFor="token"
+                  className="block text-sm font-medium text-github-fg-default"
+                >
                   Personal Access Token
                 </label>
-                <span className="text-xs text-github-fg-muted font-normal">Optional</span>
+                <span className="text-xs text-github-fg-muted font-normal">
+                  Optional
+                </span>
               </div>
               <input
                 id="token"
@@ -95,9 +103,7 @@ export default function Home() {
                   Generating...
                 </>
               ) : (
-                <>
-                  Generate Wrapped
-                </>
+                <>Generate Wrapped</>
               )}
             </button>
           </form>
@@ -109,17 +115,17 @@ export default function Home() {
             Securely fetches data from GitHub API.
           </p>
           <p className="text-xs text-github-fg-muted flex items-center justify-center gap-2">
-            <button 
+            <button
               onClick={() => setIsAboutOpen(true)}
               className="hover:text-github-accent-fg hover:underline"
             >
               About
             </button>
             <span>·</span>
-            <a 
-              href="https://github.com/minagishl/github-wrapped" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://github.com/minagishl/github-wrapped"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hover:text-github-accent-fg hover:underline"
             >
               View on GitHub
@@ -127,10 +133,10 @@ export default function Home() {
             <span>·</span>
             <span>
               Created by{" "}
-              <a 
-                href="https://github.com/minagishl" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://github.com/minagishl"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:text-github-accent-fg hover:underline"
               >
                 Minagishl

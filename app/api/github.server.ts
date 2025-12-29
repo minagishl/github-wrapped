@@ -19,14 +19,19 @@ interface ContributionResponse {
   }>;
 }
 
-async function fetchContributionData(username: string, year: number): Promise<{ total: number, days: ContributionDay[] }> {
+async function fetchContributionData(
+  username: string,
+  year: number
+): Promise<{ total: number; days: ContributionDay[] }> {
   try {
-    const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=${year}`);
+    const res = await fetch(
+      `https://github-contributions-api.jogruber.de/v4/${username}?y=${year}`
+    );
     if (!res.ok) return { total: 0, days: [] };
     const data = (await res.json()) as ContributionResponse;
-    return { 
+    return {
       total: data.total?.[year] || 0,
-      days: data.contributions || []
+      days: data.contributions || [],
     };
   } catch (e) {
     console.error("Failed to fetch contributions:", e);
@@ -34,7 +39,10 @@ async function fetchContributionData(username: string, year: number): Promise<{ 
   }
 }
 
-export async function fetchGitHubData(username: string, token?: string): Promise<WrappedData> {
+export async function fetchGitHubData(
+  username: string,
+  token?: string
+): Promise<WrappedData> {
   const octokit = new Octokit({ auth: token });
 
   // Determine Wrapped Year
@@ -45,7 +53,9 @@ export async function fetchGitHubData(username: string, token?: string): Promise
   const year = currentMonth === 11 ? currentYear : currentYear - 1;
 
   // 1. Fetch Profile
-  const { data: profile } = await octokit.rest.users.getByUsername({ username });
+  const { data: profile } = await octokit.rest.users.getByUsername({
+    username,
+  });
 
   // 2. Fetch Repos (up to 100 for now, sorted by updated)
   const { data: repos } = await octokit.rest.repos.listForUser({
@@ -70,16 +80,20 @@ export async function fetchGitHubData(username: string, token?: string): Promise
     .map(([name, count]) => ({
       name,
       count,
-      percentage: totalReposWithLang > 0 ? (count / totalReposWithLang) * 100 : 0,
+      percentage:
+        totalReposWithLang > 0 ? (count / totalReposWithLang) * 100 : 0,
     }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
   // 4. Calculate Total Stars
-  const totalStars = repos.reduce((sum, repo) => sum + (repo.stargazers_count || 0), 0);
+  const totalStars = repos.reduce(
+    (sum, repo) => sum + (repo.stargazers_count || 0),
+    0
+  );
 
   // 5. Estimate Commits & Activity (Mock logic for now, real implementation needs GraphQL or events)
-  // For a real "Wrapped", we'd fetch commit history. Due to rate limits/complexity, 
+  // For a real "Wrapped", we'd fetch commit history. Due to rate limits/complexity,
   // we'll use a simplified heuristic or fetch events if possible.
   // Let's fetch public events to get a sense of activity.
   const { data: events } = await octokit.rest.activity.listPublicEventsForUser({
@@ -88,17 +102,19 @@ export async function fetchGitHubData(username: string, token?: string): Promise
   });
 
   const pushEvents = events.filter((e) => e.type === "PushEvent");
-  
+
   // Use external API for accurate total commits count and daily data
   const contributionData = await fetchContributionData(username, year);
   const totalCommits = contributionData.total;
-  
+
   // Calculate Longest Streak
   let longestStreak = 0;
   let currentStreak = 0;
   // Sort days just in case
-  const sortedDays = contributionData.days.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  
+  const sortedDays = contributionData.days.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
   for (const day of sortedDays) {
     if (day.count > 0) {
       currentStreak++;
@@ -111,9 +127,22 @@ export async function fetchGitHubData(username: string, token?: string): Promise
 
   // Calculate Most Productive Month
   const monthCounts: Record<string, number> = {};
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  
-  sortedDays.forEach(day => {
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  sortedDays.forEach((day) => {
     const date = new Date(day.date);
     const month = monthNames[date.getMonth()];
     monthCounts[month] = (monthCounts[month] || 0) + day.count;
@@ -152,7 +181,15 @@ export async function fetchGitHubData(username: string, token?: string): Promise
   const dayCounts = new Array(7).fill(0);
   days.forEach((d) => dayCounts[d]++);
   const maxDayIndex = dayCounts.indexOf(Math.max(...dayCounts));
-  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
   const busiestDay = daysOfWeek[maxDayIndex];
 
   return {
