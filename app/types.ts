@@ -23,6 +23,37 @@ export const RepoSchema = z.object({
 
 export const LanguageStatsSchema = z.record(z.string(), z.number());
 
+export const YearComparisonSchema = z.object({
+  totalCommits: z.object({
+    current: z.number(),
+    previous: z.number(),
+    change: z.number(),
+  }),
+  totalStars: z.object({
+    current: z.number(),
+    previous: z.number(),
+    change: z.number(),
+  }),
+  longestStreak: z.object({
+    current: z.number(),
+    previous: z.number(),
+    change: z.number(),
+  }),
+  publicRepos: z.object({
+    current: z.number(),
+    previous: z.number(),
+    change: z.number(),
+  }),
+});
+
+export const PredictionSchema = z.object({
+  predictedCommits: z.number(),
+  predictedStars: z.number(),
+  predictedStreak: z.number(),
+  message: z.string(), // Motivational message
+  confidence: z.string(), // "High", "Medium", "Low"
+});
+
 export const WrappedDataSchema = z.object({
   profile: UserProfileSchema,
   repos: z.array(RepoSchema),
@@ -37,6 +68,8 @@ export const WrappedDataSchema = z.object({
   busiestDay: z.string(), // "Monday", etc.
   busiestTime: z.string(), // "Morning", "Night", etc.
   year: z.number(),
+  previousYearComparison: YearComparisonSchema.optional(),
+  nextYearPrediction: PredictionSchema.optional(),
 });
 
 export type WrappedData = z.infer<typeof WrappedDataSchema>;

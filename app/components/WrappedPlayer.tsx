@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toPng } from "html-to-image";
 import {
   Download,
-  Share2,
   Play,
   Pause,
   RotateCcw,
@@ -11,11 +10,14 @@ import {
   Flame,
   Trophy,
   Calendar,
-  Clock,
   Moon,
   Sun,
   Coffee,
   Laptop,
+  TrendingUp,
+  TrendingDown,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import type { WrappedData } from "../types";
 
@@ -214,6 +216,204 @@ const PersonalityScene = ({ data }: { data: WrappedData }) => {
   );
 };
 
+const YearComparisonScene = ({ data }: { data: WrappedData }) => {
+  if (!data.previousYearComparison) return null;
+
+  const comp = data.previousYearComparison;
+  const formatChange = (change: number) => {
+    const sign = change >= 0 ? "+" : "";
+    return `${sign}${change.toFixed(1)}%`;
+  };
+
+  const getChangeColor = (change: number) => {
+    return change >= 0 ? "text-github-success-fg" : "text-github-danger-fg";
+  };
+
+  const getChangeIcon = (change: number) => {
+    return change >= 0 ? (
+      <TrendingUp className="w-5 h-5" />
+    ) : (
+      <TrendingDown className="w-5 h-5" />
+    );
+  };
+
+  const stats = [
+    {
+      label: "Commits",
+      current: comp.totalCommits.current,
+      previous: comp.totalCommits.previous,
+      change: comp.totalCommits.change,
+      icon: Github,
+    },
+    {
+      label: "Stars",
+      current: comp.totalStars.current,
+      previous: comp.totalStars.previous,
+      change: comp.totalStars.change,
+      icon: Trophy,
+    },
+    {
+      label: "Longest Streak",
+      current: comp.longestStreak.current,
+      previous: comp.longestStreak.previous,
+      change: comp.longestStreak.change,
+      icon: Flame,
+    },
+    {
+      label: "Repositories",
+      current: comp.publicRepos.current,
+      previous: comp.publicRepos.previous,
+      change: comp.publicRepos.change,
+      icon: Calendar,
+    },
+  ];
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full text-center space-y-6 p-8 bg-github-canvas-default text-github-fg-default">
+      <motion.h2
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="text-2xl font-semibold text-github-fg-default mb-2"
+      >
+        Year Over Year
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-github-fg-muted text-sm mb-6"
+      >
+        {data.year - 1} vs {data.year}
+      </motion.p>
+
+      <div className="space-y-4 w-full max-w-sm">
+        {stats.map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-github-canvas-subtle border border-github-border-default rounded-md p-4"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <stat.icon className="w-5 h-5 text-github-fg-muted" />
+                <span className="font-medium text-github-fg-default">
+                  {stat.label}
+                </span>
+              </div>
+              <div
+                className={`flex items-center gap-1 ${getChangeColor(stat.change)}`}
+              >
+                {getChangeIcon(stat.change)}
+                <span className="text-sm font-semibold">
+                  {formatChange(stat.change)}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <div className="text-left">
+                <div className="text-xs text-github-fg-muted mb-1">
+                  {data.year - 1}
+                </div>
+                <div className="text-lg font-bold text-github-fg-muted">
+                  {stat.previous.toLocaleString()}
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-github-fg-muted mx-2" />
+              <div className="text-right">
+                <div className="text-xs text-github-fg-muted mb-1">
+                  {data.year}
+                </div>
+                <div className="text-2xl font-bold text-github-accent-fg">
+                  {stat.current.toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const PredictionScene = ({ data }: { data: WrappedData }) => {
+  if (!data.nextYearPrediction) return null;
+
+  const pred = data.nextYearPrediction;
+  const confidenceColors = {
+    High: "text-github-success-fg",
+    Medium: "text-github-attention-fg",
+    Low: "text-github-fg-muted",
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full text-center space-y-8 p-8 bg-github-canvas-default text-github-fg-default">
+      <h2 className="text-2xl font-semibold mb-4 text-github-fg-default">
+        Next Year Prediction
+      </h2>
+
+      <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+        {[
+          {
+            label: "Commits",
+            value: pred.predictedCommits.toLocaleString(),
+            icon: Github,
+          },
+          {
+            label: "Stars",
+            value: pred.predictedStars.toLocaleString(),
+            icon: Trophy,
+          },
+          {
+            label: "Streak",
+            value: `${pred.predictedStreak} Days`,
+            icon: Flame,
+          },
+          {
+            label: "Confidence",
+            value: pred.confidence,
+            icon: Sparkles,
+          },
+        ].map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-github-canvas-subtle rounded-md p-6 border border-github-border-default shadow-sm flex flex-col items-center justify-center aspect-square"
+          >
+            <stat.icon className="w-8 h-8 text-github-fg-muted mb-3 opacity-50" />
+            <div
+              className={`text-2xl font-bold mb-1 ${
+                stat.label === "Confidence"
+                  ? confidenceColors[
+                      pred.confidence as keyof typeof confidenceColors
+                    ]
+                  : "text-github-accent-fg"
+              }`}
+            >
+              {stat.value}
+            </div>
+            <div className="text-sm text-github-fg-muted">{stat.label}</div>
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="bg-github-canvas-subtle border border-github-border-default rounded-md p-4 w-full max-w-sm"
+      >
+        <p className="text-sm text-github-fg-default leading-relaxed">
+          {pred.message}
+        </p>
+      </motion.div>
+    </div>
+  );
+};
+
 const SummaryScene = ({ data }: { data: WrappedData }) => (
   <div className="flex flex-col items-center justify-center h-full text-center space-y-6 p-8 bg-github-canvas-default text-github-fg-default">
     <div className="w-full max-w-sm bg-github-canvas-subtle border border-github-border-default rounded-lg overflow-hidden shadow-lg">
@@ -305,14 +505,23 @@ export function WrappedPlayer({ data }: { data: WrappedData }) {
   const [isPlaying, setIsPlaying] = useState(true);
   const sceneRef = useRef<HTMLDivElement>(null);
 
-  const scenes = [
-    { component: IntroScene, duration: 5000 },
-    { component: StatsScene, duration: 6000 },
-    { component: ProductiveMonthScene, duration: 6000 },
-    { component: LanguagesScene, duration: 6000 },
-    { component: PersonalityScene, duration: 6000 },
-    { component: SummaryScene, duration: 10000 },
-  ];
+  const scenes = useMemo(
+    () => [
+      { component: IntroScene, duration: 5000 },
+      { component: StatsScene, duration: 6000 },
+      { component: ProductiveMonthScene, duration: 6000 },
+      { component: LanguagesScene, duration: 6000 },
+      { component: PersonalityScene, duration: 6000 },
+      ...(data.previousYearComparison
+        ? [{ component: YearComparisonScene, duration: 8000 }]
+        : []),
+      ...(data.nextYearPrediction
+        ? [{ component: PredictionScene, duration: 8000 }]
+        : []),
+      { component: SummaryScene, duration: 10000 },
+    ],
+    [data.previousYearComparison, data.nextYearPrediction]
+  );
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -326,7 +535,7 @@ export function WrappedPlayer({ data }: { data: WrappedData }) {
     }, scenes[currentScene].duration);
 
     return () => clearTimeout(timer);
-  }, [currentScene, isPlaying]);
+  }, [currentScene, isPlaying, scenes]);
 
   const handleExport = async () => {
     if (sceneRef.current) {
@@ -347,7 +556,7 @@ export function WrappedPlayer({ data }: { data: WrappedData }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-github-canvas-inset p-4 font-sans">
       {/* Player Container */}
-      <div className="relative w-full max-w-md aspect-[9/16] bg-github-canvas-default rounded-xl overflow-hidden shadow-2xl border border-github-border-default">
+      <div className="relative w-full max-w-md aspect-9/16 bg-github-canvas-default rounded-xl overflow-hidden shadow-2xl border border-github-border-default">
         {/* Progress Bar */}
         <div className="absolute top-4 left-4 right-4 z-20 flex gap-1.5">
           {scenes.map((_, i) => (
@@ -397,7 +606,7 @@ export function WrappedPlayer({ data }: { data: WrappedData }) {
         </div>
 
         {/* Controls Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex justify-between items-center bg-gradient-to-t from-github-canvas-default to-transparent">
+        <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex justify-between items-center bg-linear-to-t from-github-canvas-default to-transparent">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
             className="p-2 rounded-md hover:bg-github-canvas-subtle text-github-fg-default transition-colors"

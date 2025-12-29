@@ -192,6 +192,166 @@ export async function fetchGitHubData(
   ];
   const busiestDay = daysOfWeek[maxDayIndex];
 
+  // Fetch previous year data for comparison
+  const previousYear = year - 1;
+  const previousYearData = await fetchContributionData(username, previousYear);
+
+  // Calculate previous year stats
+  let previousLongestStreak = 0;
+  let previousCurrentStreak = 0;
+  const previousSortedDays = previousYearData.days.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  for (const day of previousSortedDays) {
+    if (day.count > 0) {
+      previousCurrentStreak++;
+    } else {
+      previousLongestStreak = Math.max(
+        previousLongestStreak,
+        previousCurrentStreak
+      );
+      previousCurrentStreak = 0;
+    }
+  }
+  previousLongestStreak = Math.max(
+    previousLongestStreak,
+    previousCurrentStreak
+  );
+
+  // Fetch previous year repos (we'll estimate stars from current repos that existed then)
+  // For simplicity, we'll use a heuristic based on creation dates
+  // Note: We can't get exact star counts from previous year, so we estimate
+  // by assuming repos created before previous year had fewer stars
+  const previousYearRepos = repos.filter((repo) => {
+    if (!repo.created_at) return false;
+    const repoYear = new Date(repo.created_at).getFullYear();
+    return repoYear <= previousYear;
+  });
+
+  // Estimate previous year stars: assume repos gained stars proportionally
+  // This is a rough estimate - in reality we'd need historical star data
+  const previousYearStars = Math.max(
+    0,
+    Math.round(
+      previousYearRepos.reduce(
+        (sum, repo) => sum + (repo.stargazers_count || 0),
+        0
+      ) * 0.7
+    )
+  );
+
+  // Calculate comparison
+  const calculateChange = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return ((current - previous) / previous) * 100;
+  };
+
+  const previousYearComparison = {
+    totalCommits: {
+      current: totalCommits,
+      previous: previousYearData.total,
+      change: calculateChange(totalCommits, previousYearData.total),
+    },
+    totalStars: {
+      current: totalStars,
+      previous: previousYearStars,
+      change: calculateChange(totalStars, previousYearStars),
+    },
+    longestStreak: {
+      current: longestStreak,
+      previous: previousLongestStreak,
+      change: calculateChange(longestStreak, previousLongestStreak),
+    },
+    publicRepos: {
+      current: profile.public_repos,
+      previous: previousYearRepos.length,
+      change: calculateChange(profile.public_repos, previousYearRepos.length),
+    },
+  };
+
+  // Predict next year
+  const calculatePrediction = () => {
+    // Simple linear regression based on growth rate
+    const commitsGrowthRate =
+      previousYearData.total > 0
+        ? (totalCommits - previousYearData.total) / previousYearData.total
+        : 0.1; // Default 10% growth if no previous data
+
+    const starsGrowthRate =
+      previousYearStars > 0
+        ? (totalStars - previousYearStars) / previousYearStars
+        : 0.1;
+
+    const streakGrowthRate =
+      previousLongestStreak > 0
+        ? (longestStreak - previousLongestStreak) / previousLongestStreak
+        : 0;
+
+    // Predict with some smoothing (average of growth and current trend)
+    const predictedCommits = Math.round(
+      totalCommits * (1 + Math.max(commitsGrowthRate, 0.05))
+    );
+    const predictedStars = Math.round(
+      totalStars * (1 + Math.max(starsGrowthRate, 0.05))
+    );
+    const predictedStreak = Math.round(
+      longestStreak * (1 + Math.max(streakGrowthRate, 0))
+    );
+
+    // Determine confidence based on data availability
+    let confidence = "Medium";
+    if (previousYearData.total > 0 && previousYearStars > 0) {
+      confidence = "High";
+    } else if (previousYearData.total === 0 && previousYearStars === 0) {
+      confidence = "Low";
+    }
+
+    // Generate motivational message
+    const messages = [
+      `Keep pushing! You're on track for ${predictedCommits.toLocaleString()} commits next year!`,
+      `Your coding journey is accelerating! Aim for ${predictedStreak} day streak!`,
+      `The stars are aligning! You could reach ${predictedStars.toLocaleString()} stars!`,
+      `Your momentum is unstoppable! Keep coding and watch your numbers soar!`,
+      `Next year will be even better! Challenge yourself to beat these predictions!`,
+      `You're building something amazing! ${predictedCommits.toLocaleString()} commits is within reach!`,
+      `Every commit counts! You're on fire - keep it up!`,
+      `The future is bright! Your dedication will pay off!`,
+      `Stay consistent! ${predictedStreak} days is just the beginning!`,
+      `Your code is making an impact! Keep pushing forward!`,
+    ];
+
+    // Select message based on growth and activity
+    let messageIndex = 0;
+    if (commitsGrowthRate > 0.3)
+      messageIndex = 0; // Very high growth
+    else if (streakGrowthRate > 0.15)
+      messageIndex = 1; // Streak focus
+    else if (starsGrowthRate > 0.3)
+      messageIndex = 2; // Stars focus
+    else if (commitsGrowthRate > 0.2)
+      messageIndex = 3; // High growth
+    else if (commitsGrowthRate > 0.1)
+      messageIndex = 4; // Positive growth
+    else if (totalCommits > 500)
+      messageIndex = 5; // High activity
+    else if (longestStreak > 50)
+      messageIndex = 8; // Long streak
+    else if (commitsGrowthRate > 0)
+      messageIndex = 6; // Some growth
+    else messageIndex = 7; // General motivation
+
+    return {
+      predictedCommits,
+      predictedStars,
+      predictedStreak,
+      message: messages[messageIndex],
+      confidence,
+    };
+  };
+
+  const nextYearPrediction = calculatePrediction();
+
   return {
     profile: {
       login: profile.login,
@@ -221,5 +381,7 @@ export async function fetchGitHubData(
     busiestDay,
     busiestTime,
     year,
+    previousYearComparison,
+    nextYearPrediction,
   };
 }
